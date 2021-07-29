@@ -5,6 +5,8 @@
  */
 package me.mauro.cloud.server;
 
+import java.io.IOException;
+
 /**
  *
  * @author user
@@ -14,8 +16,8 @@ public class CloudServer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) throws IOException {
+        Server server = new Server();
+        server.open();
     }
-    
 }

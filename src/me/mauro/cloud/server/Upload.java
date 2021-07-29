@@ -13,7 +13,7 @@ import java.io.IOException;
  *
  * @author user
  */
-public class Download implements Comando {
+public class Upload implements Comando {
 
     private final static String STORAGE_PATH = System.getProperty("user.home") + "/Desktop/";
 

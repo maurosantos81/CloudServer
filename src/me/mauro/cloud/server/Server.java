@@ -6,7 +6,9 @@
 package me.mauro.cloud.server;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  *
@@ -27,7 +29,21 @@ public class Server {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                
+                while (true) {
+                    Socket socket;
+                    try {
+                        socket = server.accept();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
+                    try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+                        Pacote pacote = (Pacote) ois.readObject();
+                        new Thread(() -> Comandos.values()[pacote.getComando()].getController().action(pacote)).start();
+                    } catch (ClassNotFoundException | IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         }).start();
     }

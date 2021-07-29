@@ -5,17 +5,13 @@
  */
 package me.mauro.cloud.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-
 /**
  *
  * @author user
  */
 public enum Comandos {
 
-    DOWNLOAD(new Download());
+    UPLOAD(new Upload());
 
     private final Comando controller;
 
@@ -25,20 +21,5 @@ public enum Comandos {
 
     public Comando getController() {
         return controller;
-    }
-
-    public void executar(InputStream is) throws IOException {
-        ObjectInputStream ois = new ObjectInputStream(is);
-
-        Pacote pacote;
-        try {
-            pacote = (Pacote) ois.readObject();
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            ois.close();
-        }
-
-        pacote.getComando().action(pacote);
     }
 }
