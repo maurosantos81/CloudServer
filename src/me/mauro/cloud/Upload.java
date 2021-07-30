@@ -50,17 +50,25 @@ public class Upload implements Comando {
         }
     }
 
+    //criar o nome do ficheiro
+    //exemplo: caso ja existe um ficheiro com o nome "bbb.txt", a funçao gera o nome "bbb(1).txt"
     private String getName(Pacote pacote) {
         String name = Server.STORAGE_PATH + pacote.getName();
-        int i = 1;
+
+        int i = 0;
+        String[] split = name.split("\\.");
+        String extension = split[split.length - 1];
+
         while (new File(name).exists()) {
-            if (name.contains(String.format("(%d)", i))) {
-                name = name.replace(String.format("(%d)", i), String.format("(%d)", ++i));
-            } else {
-                String[] split = name.split("\\.");
-                String extension = split[split.length - 1];
-                name = name.substring(0, name.length() - extension.length() - 1) + String.format("(%d)", i) + "." + extension;
+            int numeroDigitos = String.valueOf(i).length() + 2;
+            //remover a extensao e o ponto do name
+            name = name.substring(0, name.length() - extension.length() - 1);
+            //verificar se já possui um numero
+            if (name.substring(name.length() - numeroDigitos).equals(String.format("(%d)", i))) {
+                name = name.substring(0, name.length() - numeroDigitos);
             }
+
+            name += String.format("(%d)", ++i) + "." + extension;
         }
         return name;
     }
