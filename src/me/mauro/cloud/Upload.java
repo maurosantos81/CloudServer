@@ -8,6 +8,8 @@ package me.mauro.cloud;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -15,25 +17,36 @@ import java.io.IOException;
  */
 public class Upload implements Comando {
 
+    private static Map<Integer, File> fileNames = new HashMap();
+
     @Override
     public void action(Pacote pacote) {
+        //criar o nome, e adiciona-lo ao hashmap
+        //esse nome vai ser a referencia para os proximos fragmentos
+        if (pacote.getFragment() == 0) {
+            fileNames.put(pacote.getIdentifier(), new File(getName(pacote)));
+        }
+
         try {
-            FileOutputStream fos;
+            //caso cheguem fragmentos na ordem errado.
+            //ex: caso o 4º fragmento chegar primeiro que o 3º, ele vai ter que esperar
+            if (pacote.getFragment() != 0) {
 
-//            if (pacote.getFragment() == 0) {
-//                fos = new FileOutputStream(new File(pacote.getName() + pacote.hashCode()), true);
-//            } else {
-                fos = new FileOutputStream(new File(getName(pacote)), true);
-//            }
-
-            while (pacote.getFragment() != 0 && pacote.getFragmentOffset() < new File(Server.STORAGE_PATH).length()) {
-                Thread.sleep(300);
+                while (pacote.getFragmentOffset() > fileNames.getOrDefault(pacote.getIdentifier(), new File("")).length()) {
+                    Thread.sleep(300);
+                }
             }
 
+            //escrever no arquivo
+            FileOutputStream fos = new FileOutputStream(fileNames.get(pacote.getIdentifier()), true);
             fos.write(pacote.getFileBytes());
             fos.close();
         } catch (IOException | InterruptedException ex) {
             throw new RuntimeException(ex);
+        }
+
+        if (!pacote.haveMoreFragments()) {
+            fileNames.remove(pacote.getIdentifier());
         }
     }
 
@@ -44,9 +57,9 @@ public class Upload implements Comando {
             if (name.contains(String.format("(%d)", i))) {
                 name = name.replace(String.format("(%d)", i), String.format("(%d)", ++i));
             } else {
-                String[] split = name.split(".");
+                String[] split = name.split("\\.");
                 String extension = split[split.length - 1];
-                name = name.substring(0, name.length() - extension.length() -1) + String.format("(%d)", i) + "." + extension;
+                name = name.substring(0, name.length() - extension.length() - 1) + String.format("(%d)", i) + "." + extension;
             }
         }
         return name;
