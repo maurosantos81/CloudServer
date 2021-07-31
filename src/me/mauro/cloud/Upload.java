@@ -31,7 +31,6 @@ public class Upload implements Comando {
             //caso cheguem fragmentos na ordem errado.
             //ex: caso o 4º fragmento chegar primeiro que o 3º, ele vai ter que esperar
             if (pacote.getFragment() != 0) {
-
                 while (pacote.getFragmentOffset() > fileNames.getOrDefault(pacote.getIdentifier(), new File("")).length()) {
                     Thread.sleep(300);
                 }
