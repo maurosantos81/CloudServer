@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import jdk.nashorn.internal.parser.TokenType;
 
 /**
  *
@@ -24,20 +25,26 @@ public class Upload implements Comando {
         //criar o nome, e adiciona-lo ao hashmap
         //esse nome vai ser a referencia para os proximos fragmentos
         if (pacote.getFragment() == 0) {
-            fileNames.put(pacote.getIdentifier(), new File(getName(pacote)));
+            String f = getName(pacote);
+            fileNames.put(pacote.hashCode(), new File(f));
+            System.out.println("crl " + f);
         }
 
         try {
             //caso cheguem fragmentos na ordem errado.
             //ex: caso o 4º fragmento chegar primeiro que o 3º, ele vai ter que esperar
             if (pacote.getFragment() != 0) {
-                while (pacote.getFragmentOffset() > fileNames.getOrDefault(pacote.getIdentifier(), new File("")).length()) {
+                while (pacote.getFragmentOffset() > fileNames.getOrDefault(pacote.hashCode(), new File("")).length()) {
                     Thread.sleep(300);
                 }
             }
 
+            File file = fileNames.get(pacote.hashCode());
+            //criar o diretorio onde vai ser guardado o ficheiro
+            createDir(file);
+
             //escrever no arquivo
-            FileOutputStream fos = new FileOutputStream(fileNames.get(pacote.getIdentifier()), true);
+            FileOutputStream fos = new FileOutputStream(file, true);
             fos.write(pacote.getFileBytes());
             fos.close();
         } catch (IOException | InterruptedException ex) {
@@ -45,30 +52,31 @@ public class Upload implements Comando {
         }
 
         if (!pacote.haveMoreFragments()) {
-            fileNames.remove(pacote.getIdentifier());
+            fileNames.remove(pacote.hashCode());
+        }
+    }
+
+    private void createDir(File file) throws IOException {
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
         }
     }
 
     //criar o nome do ficheiro
     //exemplo: caso ja existe um ficheiro com o nome "bbb.txt", a funçao gera o nome "bbb(1).txt"
     private String getName(Pacote pacote) {
-        String name = Server.STORAGE_PATH + pacote.getName();
+        String name = Server.STORAGE_PATH + pacote.getUser().getNome() + "\\" + pacote.getName();
 
-        int i = 0;
+        int i = 1;
         String[] split = name.split("\\.");
         String extension = split[split.length - 1];
 
-        while (new File(name).exists()) {
-            int numeroDigitos = String.valueOf(i).length() + 2;
-            //remover a extensao e o ponto do name
-            name = name.substring(0, name.length() - extension.length() - 1);
-            //verificar se já possui um numero
-            if (name.substring(name.length() - numeroDigitos).equals(String.format("(%d)", i))) {
-                name = name.substring(0, name.length() - numeroDigitos);
-            }
-
-            name += String.format("(%d)", ++i) + "." + extension;
+        File file = new File(name);
+        while (file.exists() && !file.isDirectory()) {
+            file = new File(name.replace("." + extension,
+                    String.format("(%d).%s", i++, extension)));
         }
-        return name;
+
+        return file.getAbsolutePath();
     }
 }

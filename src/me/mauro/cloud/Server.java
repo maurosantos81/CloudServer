@@ -17,7 +17,7 @@ import java.net.Socket;
  */
 public class Server {
 
-    public final static String STORAGE_PATH = System.getProperty("user.home") + "/Desktop/MyCloud/";
+    public final static String STORAGE_PATH = System.getProperty("user.home") + "\\Desktop\\MyCloud\\";
 
     private final static int PORT = 53152;
     private ServerSocket server;
