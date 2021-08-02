@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import me.mauro.cloud.pacotes.Pacote;
+import me.mauro.cloud.pacotes.UploadPacote;
 
 /**
  *
@@ -20,7 +22,8 @@ public class Upload implements Comando {
     private static Map<Integer, File> fileNames = new HashMap();
 
     @Override
-    public void action(Pacote pacote) {
+    public void action(Pacote pkt) {
+        UploadPacote pacote = (UploadPacote) pkt;
         //criar o nome, e adiciona-lo ao hashmap
         //esse nome vai ser a referencia para os proximos fragmentos
         if (pacote.getFragment() == 0) {
@@ -63,7 +66,7 @@ public class Upload implements Comando {
 
     //criar o nome do ficheiro
     //exemplo: caso ja existe um ficheiro com o nome "bbb.txt", a funçao gera o nome "bbb(1).txt"
-    private String getName(Pacote pacote) {
+    private String getName(UploadPacote pacote) {
         String name = Server.STORAGE_PATH + pacote.getUser().getNome() + "\\" + pacote.getName();
 
         int i = 1;

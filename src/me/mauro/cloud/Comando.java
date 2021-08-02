@@ -5,6 +5,8 @@
  */
 package me.mauro.cloud;
 
+import me.mauro.cloud.pacotes.Pacote;
+
 /**
  *
  * @author user
