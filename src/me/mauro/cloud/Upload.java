@@ -28,7 +28,7 @@ public class Upload implements Comando {
         //criar o nome, e adiciona-lo ao hashmap
         //esse nome vai ser a referencia para os proximos fragmentos
         if (pacote.getFragment() == 0) {
-            fileNames.put(pacote.hashCode(), new File(getName(pacote)));
+            fileNames.put(pacote.hashCode(), getFile(pacote));
         }
 
         try {
@@ -63,9 +63,8 @@ public class Upload implements Comando {
         }
     }
 
-    //criar o nome do ficheiro
     //exemplo: caso ja existe um ficheiro com o nome "bbb.txt", a funçao gera o nome "bbb(1).txt"
-    private String getName(UploadPacote pacote) {
+    private File getFile(UploadPacote pacote) {
         String name = Server.STORAGE_PATH + pacote.getUser().getNome() + "\\" + pacote.getName();
 
         int i = 1;
@@ -78,6 +77,6 @@ public class Upload implements Comando {
                     String.format("(%d).%s", i++, extension)));
         }
 
-        return file.getAbsolutePath();
+        return file;
     }
 }
