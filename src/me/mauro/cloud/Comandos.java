@@ -11,7 +11,9 @@ package me.mauro.cloud;
  */
 public enum Comandos {
 
-    UPLOAD(new Upload());
+    UPLOAD(new Upload()),
+    DOWNLOAD(new Download()),
+    LIST_FILES(new ListFiles());
 
     private final Comando controller;
 

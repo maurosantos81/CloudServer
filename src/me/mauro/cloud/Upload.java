@@ -8,6 +8,7 @@ package me.mauro.cloud;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import me.mauro.cloud.pacotes.Pacote;
@@ -22,14 +23,12 @@ public class Upload implements Comando {
     private static Map<Integer, File> fileNames = new HashMap();
 
     @Override
-    public void action(Pacote pkt) {
+    public void action(Pacote pkt, Socket socket) {
         UploadPacote pacote = (UploadPacote) pkt;
         //criar o nome, e adiciona-lo ao hashmap
         //esse nome vai ser a referencia para os proximos fragmentos
         if (pacote.getFragment() == 0) {
-            String f = getName(pacote);
-            fileNames.put(pacote.hashCode(), new File(f));
-            System.out.println("crl " + f);
+            fileNames.put(pacote.hashCode(), new File(getName(pacote)));
         }
 
         try {

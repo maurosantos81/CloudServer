@@ -12,7 +12,11 @@ import me.mauro.cloud.pacotes.Pacote;
  *
  * @author user
  */
-public interface Comando {
+public class Download implements Comando {
 
-    public void action(Pacote pacote, Socket socket);
+    @Override
+    public void action(Pacote pacote, Socket socket) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

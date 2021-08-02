@@ -21,8 +21,12 @@ public class ListarFilesPacote extends Pacote {
         this.lista = lista;
     }
 
+    public List getLista() {
+        return lista;
+    }
+
     @Override
     public int getComando() {
-        return Pacote.LISTAR_FILES;
+        return Pacote.LIST_FILES;
     }
 }

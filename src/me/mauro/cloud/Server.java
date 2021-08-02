@@ -42,20 +42,24 @@ public class Server {
             public void run() {
                 while (true) {
                     System.out.println("Waiting for a connection...");
-                    Socket socket;
                     try {
-                        socket = server.accept();
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-
-                    try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+                        Socket socket = server.accept();
+                        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                         Pacote pacote = (Pacote) ois.readObject();
                         Comandos comando = Comandos.values()[pacote.getComando()];
-                        new Thread(() -> comando.getController().action(pacote)).start();
+
+                        new Thread(() -> {
+                            comando.getController().action(pacote, socket);
+
+                            try {
+                                socket.close();
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }).start();
 
                         System.out.println("Conexão estabelecida com " + socket.getRemoteSocketAddress() + " para " + comando);
-                    } catch (ClassNotFoundException | IOException ex) {
+                    } catch (IOException | RuntimeException | ClassNotFoundException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
