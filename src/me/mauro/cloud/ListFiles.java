@@ -7,9 +7,11 @@ package me.mauro.cloud;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import me.mauro.cloud.pacotes.ListarFilesPacote;
 import me.mauro.cloud.pacotes.Pacote;
@@ -21,7 +23,7 @@ import me.mauro.cloud.pacotes.Pacote;
 public class ListFiles implements Comando {
 
     @Override
-    public void action(Pacote pacote, Socket socket) {
+    public void action(Pacote pacote, Socket socket, ObjectInputStream ois) {
         String path = Server.STORAGE_PATH + pacote.getUser().getNome() + "\\";
         List<String> files = Arrays.asList(new File(path).list());
 
@@ -35,6 +37,6 @@ public class ListFiles implements Comando {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-
     }
+
 }

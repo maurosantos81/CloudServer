@@ -5,9 +5,10 @@
  */
 package me.mauro.cloud;
 
-import java.io.File;
+import java.io.ObjectInputStream;
 import java.net.Socket;
-import me.mauro.cloud.pacotes.DownloadPacote;
+import java.util.LinkedList;
+import java.util.List;
 import me.mauro.cloud.pacotes.Pacote;
 
 /**
@@ -17,10 +18,8 @@ import me.mauro.cloud.pacotes.Pacote;
 public class Download implements Comando {
 
     @Override
-    public void action(Pacote pkt, Socket socket) {
-        DownloadPacote pacote = (DownloadPacote) pkt;
-        String path = Server.STORAGE_PATH + "\\" + pacote.getUser() + "\\" + pacote.getNome();
-        File file = new File(path);
+    public void action(Pacote pacote, Socket socket, ObjectInputStream oos) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

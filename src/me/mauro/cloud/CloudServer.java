@@ -16,8 +16,20 @@ public class CloudServer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         Server server = new Server();
         server.open();
+
+//        ServerSocket server = new ServerSocket(53152);
+//        Socket socket = server.accept();
+//        
+//        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+//
+//        while (ois.available() > 0){
+//            System.out.println(ois.readInt());
+//        }
+//
+//        ois.close();
+//        server.close();
     }
 }

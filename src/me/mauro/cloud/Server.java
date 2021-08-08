@@ -7,10 +7,16 @@ package me.mauro.cloud;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.mauro.cloud.pacotes.Pacote;
+import me.mauro.cloud.pacotes.UploadPacote;
 
 /**
  *
@@ -44,27 +50,54 @@ public class Server {
                     System.out.println("Waiting for a connection...");
                     try {
                         Socket socket = server.accept();
-                        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                        InputStream is = socket.getInputStream();
+                        ObjectInputStream ois = new ObjectInputStream(is);
                         Pacote pacote = (Pacote) ois.readObject();
                         Comandos comando = Comandos.values()[pacote.getComando()];
 
+                        System.out.println("[" + socket.getRemoteSocketAddress() + "] Conexão estabelecida para " + comando);
                         new Thread(() -> {
-                            comando.getController().action(pacote, socket);
+                            System.out.println("[" + socket.getRemoteSocketAddress() + "] Processando...");
+                            comando.getController().action(pacote, socket, ois);
+                            System.out.println("[" + socket.getRemoteSocketAddress() + "] Terminado!");
 
                             try {
+                                ois.close();
                                 socket.close();
                             } catch (IOException ex) {
                                 throw new RuntimeException(ex);
                             }
                         }).start();
 
-                        System.out.println("Conexão estabelecida com " + socket.getRemoteSocketAddress() + " para " + comando);
                     } catch (IOException | RuntimeException | ClassNotFoundException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
             }
         }).start();
+    }
+
+    private List<Pacote> receivePackets(Socket socket) {
+        try {
+            List<Pacote> result = new LinkedList<>();
+            InputStream is = socket.getInputStream();
+            ObjectInputStream ois = new ObjectInputStream(is);
+            Pacote pacote = (Pacote) ois.readObject();
+            result.add(pacote);
+            if (pacote instanceof UploadPacote) {
+                while (((UploadPacote) pacote).haveMoreFragments()) {
+                    pacote = (UploadPacote) ois.readObject();
+                    result.add(pacote);
+                }
+            }
+            ois.close();
+            is.close();
+
+            return result;
+
+        } catch (IOException | ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public void close() throws IOException {

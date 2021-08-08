@@ -5,6 +5,7 @@
  */
 package me.mauro.cloud;
 
+import java.io.ObjectInputStream;
 import java.net.Socket;
 import me.mauro.cloud.pacotes.Pacote;
 
@@ -14,5 +15,5 @@ import me.mauro.cloud.pacotes.Pacote;
  */
 public interface Comando {
 
-    public void action(Pacote pacote, Socket socket);
+    public void action(Pacote pacote, Socket socket, ObjectInputStream ois);
 }

@@ -8,9 +8,8 @@ package me.mauro.cloud;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 import me.mauro.cloud.pacotes.Pacote;
 import me.mauro.cloud.pacotes.UploadPacote;
 
@@ -20,40 +19,22 @@ import me.mauro.cloud.pacotes.UploadPacote;
  */
 public class Upload implements Comando {
 
-    private static Map<Integer, File> fileNames = new HashMap();
-
     @Override
-    public void action(Pacote pkt, Socket socket) {
-        UploadPacote pacote = (UploadPacote) pkt;
-        //criar o nome, e adiciona-lo ao hashmap
-        //esse nome vai ser a referencia para os proximos fragmentos
-        if (pacote.getFragment() == 0) {
-            fileNames.put(pacote.hashCode(), getFile(pacote));
-        }
+    public void action(Pacote pacote, Socket socket, ObjectInputStream ois) {
+        UploadPacote pkt = (UploadPacote) pacote;
+        File file = getFile(pkt);
 
-        try {
-            //caso cheguem fragmentos na ordem errado.
-            //ex: caso o 4º fragmento chegar primeiro que o 3º, ele vai ter que esperar
-            if (pacote.getFragment() != 0) {
-                while (pacote.getFragmentOffset() > fileNames.getOrDefault(pacote.hashCode(), new File("")).length()) {
-                    Thread.sleep(300);
-                }
-            }
-
-            File file = fileNames.get(pacote.hashCode());
-            //criar o diretorio onde vai ser guardado o ficheiro
+        try (FileOutputStream fos = new FileOutputStream(file, true)) {
             createDir(file);
+            fos.write(pkt.getFileBytes(), 0, pkt.getReadBytes());
 
-            //escrever no arquivo
-            FileOutputStream fos = new FileOutputStream(file, true);
-            fos.write(pacote.getFileBytes());
-            fos.close();
-        } catch (IOException | InterruptedException ex) {
+            while (pkt.haveMoreFragments()) {
+                pkt = (UploadPacote) ois.readObject();
+                fos.write(pkt.getFileBytes(), 0, pkt.getReadBytes());
+                fos.flush();
+            }
+        } catch (IOException | ClassNotFoundException ex) {
             throw new RuntimeException(ex);
-        }
-
-        if (!pacote.haveMoreFragments()) {
-            fileNames.remove(pacote.hashCode());
         }
     }
 
