@@ -1,3 +1,3 @@
 # CloudServer
 
-project on pause
+Project on pause
